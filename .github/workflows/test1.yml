@@ -27,8 +27,9 @@ jobs:
         echo "TENANT_ID length: ${#TENANT_ID}"
         
         # 最初の数文字だけ表示（セキュリティのため）
-        echo "CLIENT_ID starts with: ${CLIENT_ID:0:8}..."
-        echo "TENANT_ID starts with: ${TENANT_ID:0:8}..."
+        echo "CLIENT_ID starts with: ${CLIENT_ID}"
+        echo "CLIENT_SECRET starts with: ${CLIENT_SECRET}"
+        echo "TENANT_ID starts with: ${TENANT_ID}"
         
     - name: Set up Python
       uses: actions/setup-python@v4
