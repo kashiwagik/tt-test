@@ -55,8 +55,11 @@ jobs:
         
         if client_id:
             print(f'CLIENT_ID length: {len(client_id)}')
-            print(f'CLIENT_ID starts with: {client_id[:8]}...')
+            print(f'CLIENT_ID starts with: {client_id}...')
         if tenant_id:
             print(f'TENANT_ID length: {len(tenant_id)}')
-            print(f'TENANT_ID starts with: {tenant_id[:8]}...')
+            print(f'TENANT_ID starts with: {tenant_id}...')
+        if client_secret:
+            print(f'CLIENT_SECRET length: {len(client_secret)}')
+            print(f'CLIENT_SECRET starts with: {client_secret}...')
         "
