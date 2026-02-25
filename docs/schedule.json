@@ -28384,14 +28384,6 @@
     "comment": "春分の日"
   },
   {
-    "grade": "1年生",
-    "date": "2026-03-24",
-    "period": 0,
-    "courses": "",
-    "room": "",
-    "comment": "ミニオープンキャンパス"
-  },
-  {
     "grade": "2年生",
     "date": "2025-10-01",
     "period": 0,
@@ -30934,14 +30926,6 @@
     "courses": "",
     "room": "",
     "comment": "春分の日"
-  },
-  {
-    "grade": "2年生",
-    "date": "2026-03-24",
-    "period": 0,
-    "courses": "",
-    "room": "",
-    "comment": "ミニオープンキャンパス"
   },
   {
     "grade": "3年生",
@@ -33950,14 +33934,6 @@
     "courses": "",
     "room": "",
     "comment": "春分の日"
-  },
-  {
-    "grade": "3年生",
-    "date": "2026-03-24",
-    "period": 0,
-    "courses": "",
-    "room": "",
-    "comment": "ミニオープンキャンパス"
   },
   {
     "grade": "4年生",
@@ -40080,22 +40056,6 @@
     "comment": "春分の日"
   },
   {
-    "grade": "M1",
-    "date": "2026-03-24",
-    "period": 0,
-    "courses": "",
-    "room": "",
-    "comment": "学）ミニオープンキャンパス"
-  },
-  {
-    "grade": "M1",
-    "date": "2026-03-25",
-    "period": 0,
-    "courses": "",
-    "room": "",
-    "comment": "委員会開催日"
-  },
-  {
     "grade": "M2",
     "date": "2025-10-01",
     "period": 0,
@@ -43552,22 +43512,6 @@
     "comment": "春分の日"
   },
   {
-    "grade": "M2",
-    "date": "2026-03-24",
-    "period": 0,
-    "courses": "",
-    "room": "",
-    "comment": "学）ミニオープンキャンパス"
-  },
-  {
-    "grade": "M2",
-    "date": "2026-03-25",
-    "period": 0,
-    "courses": "",
-    "room": "",
-    "comment": "委員会開催日"
-  },
-  {
     "grade": "D1",
     "date": "2025-10-01",
     "period": 0,
@@ -45526,22 +45470,6 @@
     "courses": "",
     "room": "",
     "comment": "春分の日"
-  },
-  {
-    "grade": "D1",
-    "date": "2026-03-24",
-    "period": 0,
-    "courses": "",
-    "room": "",
-    "comment": "学）ミニオープンキャンパス"
-  },
-  {
-    "grade": "D1",
-    "date": "2026-03-25",
-    "period": 0,
-    "courses": "",
-    "room": "",
-    "comment": "委員会開催日"
   },
   {
     "grade": "D2/D3",
@@ -48998,22 +48926,6 @@
     "courses": "",
     "room": "",
     "comment": "春分の日"
-  },
-  {
-    "grade": "D2/D3",
-    "date": "2026-03-24",
-    "period": 0,
-    "courses": "",
-    "room": "",
-    "comment": "学）ミニオープンキャンパス"
-  },
-  {
-    "grade": "D2/D3",
-    "date": "2026-03-25",
-    "period": 0,
-    "courses": "",
-    "room": "",
-    "comment": "委員会開催日"
   },
   {
     "grade": "4年助産",

@@ -4,10 +4,16 @@
 import os
 import requests
 from azure.identity import ClientSecretCredential
-from datetime import datetime
 import dotenv
+import yaml
 
 dotenv.load_dotenv()
+
+# =========================================
+# 設定読み込み
+# =========================================
+with open(os.path.join(os.path.dirname(__file__), "config.yaml"), encoding="utf-8") as f:
+    CONFIG = yaml.safe_load(f)
 
 # =========================================
 # SharePoint 設定（環境変数から取得）
@@ -16,34 +22,14 @@ TENANT_ID = os.getenv("TENANT_ID")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
-SITE_HOST = "ncnj.sharepoint.com"
-SITE_PATH = "/sites/staff_sharedfolders"
-GRAPH_BASE = "https://graph.microsoft.com/v1.0"
+sp = CONFIG["sharepoint"]
+SITE_HOST = sp["site_host"]
+SITE_PATH = sp["site_path"]
+GRAPH_BASE = sp["graph_base"]
 
-# 保存名は excel2json.py と一致させる
-nendo = datetime.now().year if datetime.now().month > 3 else datetime.now().year - 1
-wareki = nendo - 2018
 FILES = [
-    (
-        "spring",
-        f"140.スケジュール・時間割/{nendo}(R{wareki})年度 時間割/【{nendo}・04～09月 前期】全学年時間割.xlsx",
-        "schedule_spring_CURRENT.xlsx",
-    ),
-    (
-        "fall",
-        f"140.スケジュール・時間割/{nendo}(R{wareki})年度 時間割/【{nendo}・10～03月 後期】全学年時間割.xlsx",
-        "schedule_fall_CURRENT.xlsx",
-    ),
-    (
-        "spring",
-        f"140.スケジュール・時間割/{nendo + 1}R({wareki + 1})年度 時間割/【{nendo + 1}・04～09月 前期】全学年時間割.xlsx",
-        "schedule_spring_NEXT.xlsx",
-    ),
-    (
-        "fall",
-        f"140.スケジュール・時間割/{nendo + 1}R({wareki + 1})年度 時間割/【{nendo + 1}・10～03月 後期】全学年時間割.xlsx",
-        "schedule_fall_NEXT.xlsx",
-    ),
+    (entry["term"], entry["remote_path"], entry["save_name"])
+    for entry in CONFIG["files"]
 ]
 
 
