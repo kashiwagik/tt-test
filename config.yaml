@@ -1,0 +1,94 @@
+# SharePoint 設定
+sharepoint:
+  site_host: "ncnj.sharepoint.com"
+  site_path: "/sites/staff_sharedfolders"
+  graph_base: "https://graph.microsoft.com/v1.0"
+
+# ダウンロード対象ファイル定義
+# remote_path: SharePoint上のファイルパス（年度変更時にここを書き換える）
+# save_name:   ローカル保存名
+# term:        学期 (spring / fall) — excel2json.py の前期/後期判定で使用
+# scope:       current / next — excel2json.py のモード判定で使用
+# info_json:   info JSON の出力先パス
+files:
+  - remote_path: "140.スケジュール・時間割/2025(R7)年度 時間割/【2025・04～09月 前期】全学年時間割.xlsx"
+    save_name: "schedule_spring_CURRENT.xlsx"
+    term: spring
+    scope: current
+    info_json: "docs/info_spring_current.json"
+  - remote_path: "140.スケジュール・時間割/2025(R7)年度 時間割/【2025・10～03月 後期】全学年時間割.xlsx"
+    save_name: "schedule_fall_CURRENT.xlsx"
+    term: fall
+    scope: current
+    info_json: "docs/info_fall_current.json"
+  - remote_path: "140.スケジュール・時間割/2026(R8)年度 時間割/【2026・04～09月 前期】全学年時間割.xlsx"
+    save_name: "schedule_spring_NEXT.xlsx"
+    term: spring
+    scope: next
+    info_json: "docs/info_spring_next.json"
+  - remote_path: "140.スケジュール・時間割/2026(R8)年度 時間割/【2026・10～03月 後期】全学年時間割.xlsx"
+    save_name: "schedule_fall_NEXT.xlsx"
+    term: fall
+    scope: next
+    info_json: "docs/info_fall_next.json"
+
+# Excel シート名テンプレート
+# {yyyy} は "2025年度" のような年度文字列に置換される
+sheets:
+  前期:
+    - sheet: "{yyyy}(1年前期)"
+      grade: "1年生"
+    - sheet: "{yyyy}(2年前期)"
+      grade: "2年生"
+    - sheet: "{yyyy}(3年前期)"
+      grade: "3年生"
+    - sheet: "{yyyy}(4年前期)"
+      grade: "4年生"
+    - sheet: "{yyyy}(助産前期)"
+      grade: "4年助産"
+    - sheet: "{yyyy}(M1前期)"
+      grade: "M1"
+    - sheet: "{yyyy}(M2前期)"
+      grade: "M2"
+    - sheet: "{yyyy}(D1前期)"
+      grade: "D1"
+    - sheet: "{yyyy}(D23前期)"
+      grade: "D2/D3"
+  後期:
+    - sheet: "{yyyy}(1年後期)"
+      grade: "1年生"
+    - sheet: "{yyyy}(2年後期)"
+      grade: "2年生"
+    - sheet: "{yyyy}(3年後期)"
+      grade: "3年生"
+    - sheet: "{yyyy}(4年後期)"
+      grade: "4年生"
+    - sheet: "{yyyy}(助産後期)"
+      grade: "4年助産"
+    - sheet: "{yyyy}(M1後期)"
+      grade: "M1"
+    - sheet: "{yyyy}(M2後期)"
+      grade: "M2"
+    - sheet: "{yyyy}(D1後期)"
+      grade: "D1"
+    - sheet: "{yyyy}(D23後期)"
+      grade: "D2/D3"
+
+# 出力先
+output:
+  schedule_json: "docs/schedule.json"
+
+# 助産統合の対象
+josan:
+  source_grade: "4年生"
+  target_grade: "4年助産"
+
+# 年度の起算月 (4月始まり)
+nendo_start_month: 4
+
+# 表示期間の切り替え
+# 通常期: 年度開始日(4/1) ～ 切替日の前日(3/20)
+# 切替期: 切替日(3/21) ～ 翌年度末(翌年3/31)
+transition:
+  month: 3
+  start_day: 21
