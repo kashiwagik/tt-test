@@ -5,7 +5,9 @@ import os
 import requests
 from azure.identity import ClientSecretCredential
 from datetime import datetime
+import dotenv
 
+dotenv.load_dotenv()
 
 # =========================================
 # SharePoint 設定（環境変数から取得）
@@ -16,41 +18,33 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 SITE_HOST = "ncnj.sharepoint.com"
 SITE_PATH = "/sites/staff_sharedfolders"
+GRAPH_BASE = "https://graph.microsoft.com/v1.0"
 
-
-# =========================================
-# 年度判定
-# =========================================
-def guess_years():
-    today = datetime.now()
-
-    # 1〜3月に実行されたら → current = 前年, next = 当年
-    if today.month <= 3:
-        current_year = today.year - 1
-        next_year = today.year
-    else:
-        current_year = today.year
-        next_year = today.year + 1
-
-    return current_year, next_year
-
-
-# =========================================
-# SharePoint URL を構築
-# =========================================
-def build_sharepoint_url(year, term):
-    """
-    term: 'spring' or 'fall'
-    """
-    jp_year = f"{year}(R{year-2018})年度時間割"
-
-    if term == "spring":
-        filename = f"【{year}・04～09月 前期】全学年時間割.xlsx"
-    else:
-        filename = f"【{year}・10～03月 後期】全学年時間割.xlsx"
-
-    # sharepoint の :x:/ 形式を利用
-    return f"https://{SITE_HOST}/:x:/s/staff_sharedfolders/{jp_year}/{filename}"
+# 保存名は excel2json.py と一致させる
+nendo = datetime.now().year if datetime.now().month > 3 else datetime.now().year - 1
+wareki = nendo - 2018
+FILES = [
+    (
+        "spring",
+        f"140.スケジュール・時間割/{nendo}(R{wareki})年度 時間割/【{nendo}・04～09月 前期】全学年時間割.xlsx",
+        "schedule_spring_CURRENT.xlsx",
+    ),
+    (
+        "fall",
+        f"140.スケジュール・時間割/{nendo}(R{wareki})年度 時間割/【{nendo}・10～03月 後期】全学年時間割.xlsx",
+        "schedule_fall_CURRENT.xlsx",
+    ),
+    (
+        "spring",
+        f"140.スケジュール・時間割/{nendo + 1}R({wareki + 1})年度 時間割/【{nendo + 1}・04～09月 前期】全学年時間割.xlsx",
+        "schedule_spring_NEXT.xlsx",
+    ),
+    (
+        "fall",
+        f"140.スケジュール・時間割/{nendo + 1}R({wareki + 1})年度 時間割/【{nendo + 1}・10～03月 後期】全学年時間割.xlsx",
+        "schedule_fall_NEXT.xlsx",
+    ),
+]
 
 
 # =========================================
@@ -58,25 +52,41 @@ def build_sharepoint_url(year, term):
 # =========================================
 def get_token():
     credential = ClientSecretCredential(
-        tenant_id=TENANT_ID,
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET
+        tenant_id=TENANT_ID, client_id=CLIENT_ID, client_secret=CLIENT_SECRET
     )
     token = credential.get_token("https://graph.microsoft.com/.default")
     return token.token
 
 
 # =========================================
-# ダウンロード
+# Graph API: サイトID取得
 # =========================================
-def download_file(url, save_path, token):
+def get_site_id(token):
+    url = f"{GRAPH_BASE}/sites/{SITE_HOST}:{SITE_PATH}"
     headers = {"Authorization": f"Bearer {token}"}
-    print(f"→ Downloading: {url}")
+    resp = requests.get(url, headers=headers)
+    if resp.status_code != 200:
+        print(f"✗ サイトID取得失敗: {resp.status_code}")
+        print(resp.text[:500])
+        raise SystemExit(1)
+    site_id = resp.json()["id"]
+    print(f"✓ サイトID: {site_id}")
+    return site_id
+
+
+# =========================================
+# ダウンロード（Graph API パスベース）
+# =========================================
+def download_file(site_id, file_path, save_path, token):
+    url = f"{GRAPH_BASE}/sites/{site_id}/drive/root:/{file_path}:/content"
+    headers = {"Authorization": f"Bearer {token}"}
+    print(f"→ Downloading: {file_path}")
 
     resp = requests.get(url, headers=headers)
 
     if resp.status_code != 200:
         print(f"  ✗ Failed: {resp.status_code}")
+        print(f"  {resp.text[:300]}")
         return False
 
     with open(save_path, "wb") as f:
@@ -91,24 +101,11 @@ def download_file(url, save_path, token):
 # =========================================
 def main():
     token = get_token()
-    current_year, next_year = guess_years()
+    site_id = get_site_id(token)
 
-    print(f"◆ current_year = {current_year}")
-    print(f"◆ next_year    = {next_year}")
-
-    # 保存名は excel2json.py と完全一致させる
-    FILES = [
-        ("spring", current_year, "schedule_spring_CURRENT.xlsx"),
-        ("fall",   current_year, "schedule_fall_CURRENT.xlsx"),
-        ("spring", next_year,   "schedule_spring_NEXT.xlsx"),
-        ("fall",   next_year,   "schedule_fall_NEXT.xlsx"),
-    ]
-
-    os.makedirs(".", exist_ok=True)
-
-    for term, year, save_name in FILES:
-        url = build_sharepoint_url(year, term)
-        download_file(url, save_name, token)
+    for term, file_path, save_name in FILES:
+        print(f"=== {term} {save_name} ===")
+        download_file(site_id, file_path, save_name, token)
 
 
 if __name__ == "__main__":
