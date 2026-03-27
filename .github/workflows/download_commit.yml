@@ -20,7 +20,7 @@ jobs:
     
     - name: Install dependencies
       run: |
-        pip install requests azure-identity python-dotenv
+        pip install requests azure-identity python-dotenv pyyaml
     
     - name: Download Excel file
       env:
