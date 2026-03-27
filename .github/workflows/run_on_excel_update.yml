@@ -27,7 +27,7 @@ jobs:
 
       - name: 依存関係インストール
         run: |
-          pip install pandas openpyxl python-dotenv requests azure-identity
+          pip install pandas openpyxl python-dotenv requests azure-identity pyyaml
 
       - name: Excel → JSON 変換
         run: |
