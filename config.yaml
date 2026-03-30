@@ -4,7 +4,8 @@ sharepoint:
   site_path: "/sites/staff_sharedfolders"
   graph_base: "https://graph.microsoft.com/v1.0"
 
-# ダウンロード対象ファイル定義
+# ダウンロード対象ファイル
+# ファイルはいくつ指定してもよい。sava_nameも自由に設定可能
 # remote_path: SharePoint上のファイルパス（年度変更時にここを書き換える）
 # save_name:   ローカル保存名
 files:
@@ -13,6 +14,7 @@ files:
   - remote_path: "140.スケジュール・時間割/2026(R8)年度 時間割/【2026・10～03月 後期】全学年時間割.xlsx"
     save_name: "data/schedule_fall_2026.xlsx"
 
+sheet_pattern: "(\\d{4})年度\\((.*?)(前期|後期)\\)"
 
 # 出力先
 output:

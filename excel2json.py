@@ -34,8 +34,15 @@ def load_sheet(file_path, sheet_name, grade):
     df = df.fillna("").infer_objects(copy=False)
 
     timetable = []
+    min_date = None
+    max_date = None
     for _, row in df.iterrows():
         date = pd.to_datetime(row.iloc[1]).strftime("%Y-%m-%d")
+        if min_date is None or date < min_date:
+            min_date = date
+        if max_date is None or date > max_date:
+            max_date = date
+
         comment = row.iloc[13] if len(row) > 13 else ""
 
         if comment:
@@ -69,15 +76,15 @@ def load_sheet(file_path, sheet_name, grade):
                     "comment": "",
                 }
             )
+    print(
+        f"✓ {file_path} / {sheet_name} : {len(timetable)} 件 ({min_date} ～ {max_date})"
+    )
     return timetable
 
 
 # -------------------------
 # 指定ファイル内のシート（全部）ロード
 # -------------------------
-SHEET_PATTERN = re.compile(r"(\d+)年度\((.+?)(前期|後期)\)")
-
-
 def load_year_term(file_path):
     """
     Excelファイルのシート名から yyyy年度(学年+前期|後期) にマッチするシートを自動検出して読み込む。
@@ -89,15 +96,19 @@ def load_year_term(file_path):
         print(f"⚠ ファイルを開けません：{file_path} → {e}")
         return []
 
+    SHEET_PATTERN = re.compile(CONFIG["sheet_pattern"])
     result = []
     for sheet in sheet_names:
         m = SHEET_PATTERN.match(sheet)
         if not m:
+            # print(f"✗ シート名不一致: {sheet} （パターン: {CONFIG['sheet_pattern']}）")
             continue
+        else:
+            # print(f"✓ シート名マッチ: {sheet} → {m.groups()}")
+            pass
         _year = m.group(1)
         grade = m.group(2)
         _term = m.group(3)
-        print(f"→ {file_path} : {sheet} → {_year}:{grade}:{_term}")
         part = load_sheet(file_path, sheet, grade)
         result.extend(part)
     return result
@@ -166,22 +177,21 @@ def filter_by_date_range(timetable, start_date, end_date):
 # メイン
 # -------------------------
 if __name__ == "__main__":
+    # 全ファイル読み込み・連結
+    all_timetable = []
+    for entry in CONFIG["files"]:
+        all_timetable.extend(load_year_term(entry["save_name"]))
+
+    # 助産統合
+    all_timetable = add_schedule_to_josan(all_timetable)
+
+    # 日付範囲でフィルタ
     dp = CONFIG["display_period"]
     start_date = datetime.strptime(dp["start_date"], "%Y-%m-%d")
     end_date = datetime.strptime(dp["end_date"], "%Y-%m-%d")
     print(
         f"◆ 表示期間: {start_date.strftime('%Y-%m-%d')} ～ {end_date.strftime('%Y-%m-%d')}"
     )
-
-    # 全ファイル読み込み・連結
-    all_timetable = []
-
-    for entry in CONFIG["files"]:
-        all_timetable.extend(load_year_term(entry["save_name"]))
-
-    all_timetable = add_schedule_to_josan(all_timetable)
-
-    # 日付範囲でフィルタ
     filtered = filter_by_date_range(all_timetable, start_date, end_date)
     print(f"◆ フィルタ前: {len(all_timetable)} 件 → フィルタ後: {len(filtered)} 件")
 
