@@ -1,112 +1,102 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-<meta charset="UTF-8" />
-<title>時間割カレンダー</title>
-
-<style>
-body {
-  font-family: sans-serif;
-  margin: 10px;
-}
-
-h1 {
-  text-align: center;
-}
-
-.controls {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-button {
-  padding: 5px 10px;
-}
-
-select {
-  padding: 5px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  border: 1px solid #ccc;
-  vertical-align: top;
-  height: 100px;
-  padding: 4px;
-  font-size: 12px;
-}
-
-th {
-  background: #f0f0f0;
-}
-
-.date {
-  font-weight: bold;
-}
-
-.today {
-  background: #fff3cd;
-}
-
-.class {
-  background: #e3f2fd;
-  margin: 2px 0;
-  padding: 2px;
-  border-radius: 3px;
-  font-size: 11px;
-}
-
-.comment {
-  color: red;
-  font-size: 11px;
-}
-
-.back-link {
-  margin-bottom: 10px;
-  display: inline-block;
-}
-
-@media (max-width: 600px) {
-  th, td {
-    font-size: 10px;
-    height: 80px;
-  }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>時間割カレンダー</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+    /* カレンダー固有スタイル */
+    #calendarBody td {
+        height: 100px;
+        vertical-align: top;
+        text-align: left;
+        min-width: 0;
+    }
+    .date {
+        font-weight: bold;
+        color: var(--primary-dark);
+        font-size: 0.85rem;
+    }
+    .today {
+        background: var(--primary-lightest);
+    }
+    .cal-class {
+        background: var(--primary-lightest);
+        margin: 2px 0;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-size: 0.7rem;
+        border-left: 3px solid var(--primary-color);
+    }
+    .cal-comment {
+        color: #e74c3c;
+        font-size: 0.7rem;
+    }
+    @media (max-width: 768px) {
+        #calendarBody td {
+            height: 80px;
+        }
+    }
+    </style>
 </head>
 
 <body>
+    <!-- トップバー -->
+    <div class="topbar">
+        <button class="menu-button">
+            <a href="index.html"><i class="fas fa-arrow-left"></i></a>
+        </button>
+        <div class="topbar-title">時間割カレンダー</div>
+    </div>
 
-<a href="index.html" class="back-link">← トップへ戻る</a>
+    <div class="container">
+        <header>
+            <!-- 学年ドロップダウン -->
+            <div class="view-controls">
+                <div class="custom-dropdown" id="grade-dropdown">
+                    <div class="dropdown-toggle" id="grade-dropdown-toggle">1年</div>
+                    <div class="dropdown-menu" id="grade-dropdown-menu">
+                        <!-- JS で生成 -->
+                    </div>
+                </div>
+            </div>
 
-<h1 id="title"></h1>
+            <!-- 月セレクター -->
+            <div class="date-selector">
+                <div class="date-nav">
+                    <button onclick="prevMonth()"><i class="fas fa-chevron-left"></i></button>
+                </div>
+                <div class="date-display" id="title">Loading...</div>
+                <div class="date-nav">
+                    <button onclick="nextMonth()"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </header>
 
-<div class="controls">
-  <div>
-    <button onclick="prevMonth()">← 前月</button>
-    <button onclick="nextMonth()">次月 →</button>
-  </div>
+        <!-- カレンダー表示部分 -->
+        <div class="timetable-container">
+            <div class="timetable-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日</th><th>月</th><th>火</th>
+                            <th>水</th><th>木</th><th>金</th><th>土</th>
+                        </tr>
+                    </thead>
+                    <tbody id="calendarBody"></tbody>
+                </table>
+            </div>
+        </div>
 
-  <div>
-    学年:
-    <select id="gradeSelect" onchange="render()"></select>
-  </div>
-</div>
-
-<table>
-<thead>
-<tr>
-  <th>日</th><th>月</th><th>火</th>
-  <th>水</th><th>木</th><th>金</th><th>土</th>
-</tr>
-</thead>
-<tbody id="calendarBody"></tbody>
-</table>
+        <footer>
+            <div class="footer-content">
+                <a href="index.html">← トップへ戻る</a>
+            </div>
+        </footer>
+    </div>
 
 <script>
 let allData = [];
@@ -122,23 +112,43 @@ fetch("schedule.json")
     render();
   });
 
-// 学年
+// ドロップダウン開閉
+const toggle = document.getElementById("grade-dropdown-toggle");
+const menu = document.getElementById("grade-dropdown-menu");
+
+toggle.addEventListener("click", () => {
+  menu.classList.toggle("show");
+});
+
+document.addEventListener("click", (e) => {
+  if (!document.getElementById("grade-dropdown").contains(e.target)) {
+    menu.classList.remove("show");
+  }
+});
+
+// 学年セレクター初期化
 function initGradeSelector() {
   const grades = ["1年","2年","3年","4年","助産","M1","M2","D1","D2/D3"];
-  const select = document.getElementById("gradeSelect");
-  select.innerHTML = "";
+  menu.innerHTML = "";
 
   grades.forEach((g, index) => {
-    const opt = document.createElement("option");
-    opt.value = g;
-    opt.text = g;
-    select.appendChild(opt);
-
-    if(index === 0){
-      select.value = g;
+    const item = document.createElement("div");
+    item.className = "dropdown-item" + (index === 0 ? " active" : "");
+    item.dataset.value = g;
+    item.textContent = g;
+    item.addEventListener("click", () => {
+      menu.querySelectorAll(".dropdown-item").forEach(el => el.classList.remove("active"));
+      item.classList.add("active");
+      toggle.textContent = g;
       selectedGrade = g;
-    }
+      menu.classList.remove("show");
+      render();
+    });
+    menu.appendChild(item);
   });
+
+  selectedGrade = grades[0];
+  toggle.textContent = grades[0];
 }
 
 // 描画
@@ -151,8 +161,6 @@ function render() {
 
   document.getElementById("title").innerText =
     `${year}年 ${month + 1}月`;
-
-  selectedGrade = document.getElementById("gradeSelect").value;
 
   let data = allData.filter(d => {
     let g = d.grade;
@@ -210,12 +218,12 @@ function render() {
 
       if(periodNum === 0){
         const c = document.createElement("div");
-        c.className = "comment";
+        c.className = "cal-comment";
         c.innerText = d.comment;
         cell.appendChild(c);
       } else {
         const c = document.createElement("div");
-        c.className = "class";
+        c.className = "cal-class";
 
         const subject = d.courses || "科目不明";
         const room = (d.room !== undefined && d.room !== null) ? String(d.room) : "";
