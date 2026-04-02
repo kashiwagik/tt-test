@@ -82,8 +82,8 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>日</th><th>月</th><th>火</th>
-                            <th>水</th><th>木</th><th>金</th><th>土</th>
+                            <th>月</th><th>火</th><th>水</th>
+                            <th>木</th><th>金</th>
                         </tr>
                     </thead>
                     <tbody id="calendarBody"></tbody>
@@ -188,11 +188,18 @@ function render() {
 
   let row = document.createElement("tr");
 
-  for (let i = 0; i < firstDay.getDay(); i++) {
+  // 月初の曜日（月=0, 火=1, ..., 金=4 に変換）
+  const firstDow = (firstDay.getDay() + 6) % 7; // 0=月,1=火,...,6=日
+  const startPad = Math.min(firstDow, 5); // 土日は0
+  for (let i = 0; i < startPad; i++) {
     row.appendChild(document.createElement("td"));
   }
 
   for (let date = 1; date <= lastDate; date++) {
+    const dow = new Date(year, month, date).getDay();
+    // 土日(0=日, 6=土)はスキップ
+    if (dow === 0 || dow === 6) continue;
+
     const cell = document.createElement("td");
     const dateStr = `${year}-${String(month+1).padStart(2,"0")}-${String(date).padStart(2,"0")}`;
 
@@ -238,13 +245,17 @@ function render() {
 
     row.appendChild(cell);
 
-    if(new Date(year, month, date).getDay() === 6){
+    // 金曜日(dow=5)で行を区切る
+    if(dow === 5){
       tbody.appendChild(row);
       row = document.createElement("tr");
     }
   }
 
-  tbody.appendChild(row);
+  // 最後の行が未追加なら追加
+  if (row.children.length > 0) {
+    tbody.appendChild(row);
+  }
 }
 
 // 月切り替え
